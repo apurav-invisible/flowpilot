@@ -48,7 +48,7 @@ export function AuthLayout({
         <div className="absolute top-1/2 left-8 h-16 w-40 rounded-2xl border-2 border-ink bg-primary/20 shadow-brutal -rotate-6" />
       </div>
 
-      <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12">
+      <div className="flex-1 flex flex-col justify-start px-6 py-12 sm:px-12">
         <div className="lg:hidden mb-8">
           <Link to={ROUTES.LANDING} className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-ink bg-primary shadow-brutal-sm">
@@ -61,7 +61,7 @@ export function AuthLayout({
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md mx-auto"
+          className="w-full max-w-[160px] mx-auto"
         >
           <h2 className="text-3xl font-extrabold text-ink">{title}</h2>
           <p className="mt-2 text-base text-muted">{subtitle}</p>

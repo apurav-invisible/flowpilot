@@ -6,7 +6,7 @@ export function usePagination<T>(items: T[], itemsPerPage: number) {
   const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
 
   const paginatedItems = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
+    const start = currentPage * itemsPerPage;
     return items.slice(start, start + itemsPerPage);
   }, [items, currentPage, itemsPerPage]);
 

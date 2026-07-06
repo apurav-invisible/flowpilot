@@ -19,9 +19,9 @@ export function formatFileSize(bytes: number): string {
 
 export function getDueDateLabel(date: string): { label: string; className: string } {
   const parsed = parseISO(date);
+  if (isPast(parsed)) return { label: 'Overdue', className: 'text-red-600' };
   if (isToday(parsed)) return { label: 'Today', className: 'text-amber-600' };
   if (isTomorrow(parsed)) return { label: 'Tomorrow', className: 'text-blue-600' };
-  if (isPast(parsed)) return { label: 'Overdue', className: 'text-red-600' };
   return { label: formatDate(date), className: 'text-muted' };
 }
 
@@ -32,10 +32,10 @@ export function generateId(): string {
 export function getInitials(name: string): string {
   return name
     .split(' ')
-    .map((n) => n[0])
+    .map((n) => n.charAt(0))
     .join('')
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 3);
 }
 
 export function getStatusColor(status: TaskStatus | ProjectStatus): string {
@@ -64,7 +64,7 @@ export function getPriorityColor(priority: TaskPriority | ProjectPriority): stri
 }
 
 export function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function delay(ms: number): Promise<void> {

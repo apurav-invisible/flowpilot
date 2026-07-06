@@ -18,7 +18,7 @@ export function LandingNav() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b-2 border-ink bg-background/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b-2 border-ink bg-ink">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to={ROUTES.LANDING} className="flex items-center gap-2.5">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-ink bg-primary shadow-brutal-sm">
@@ -42,7 +42,7 @@ export function LandingNav() {
             </Link>
           ) : (
             <>
-              <Link to={ROUTES.LOGIN}>
+              <Link to={ROUTES.REGISTER}>
                 <Button variant="ghost" size="sm">Sign In</Button>
               </Link>
               <Link to={ROUTES.REGISTER}>

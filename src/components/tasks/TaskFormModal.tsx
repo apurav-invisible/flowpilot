@@ -83,7 +83,7 @@ export function TaskFormModal({ open, onClose, onSubmit, task, defaultProjectId,
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 w-[650px] max-w-none">
           <div>
             <label className="block text-sm font-medium mb-1.5">Project</label>
             <select

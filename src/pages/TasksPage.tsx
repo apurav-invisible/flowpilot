@@ -35,11 +35,11 @@ export function TasksPage() {
   const filtered = useMemo(() => {
     let result = [...tasks];
 
-    if (debouncedSearch) {
+    if (search) {
       result = result.filter(
         (t) =>
-          t.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          t.description.toLowerCase().includes(debouncedSearch.toLowerCase())
+          t.title.toLowerCase().includes(search.toLowerCase()) ||
+          t.description.toLowerCase().includes(search.toLowerCase())
       );
     }
 

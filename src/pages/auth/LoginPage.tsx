@@ -52,24 +52,21 @@ export function LoginPage() {
 
         <Input
           label="Password"
-          type="password"
+          type="text"
           placeholder="••••••••"
           error={errors.password?.message}
           {...register('password')}
         />
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div className="flex items-start justify-between">
+          <label className="block cursor-pointer">
             <input
               type="checkbox"
               {...register('rememberMe')}
               className="h-4 w-4 rounded border-2 border-ink accent-primary"
             />
-            <span className="text-sm font-semibold text-ink">Remember me</span>
+            <span className="block text-sm font-semibold text-ink mt-1">Remember me</span>
           </label>
-          <Link to={ROUTES.FORGOT_PASSWORD} className="text-sm font-bold text-primary hover:underline">
-            Forgot password?
-          </Link>
         </div>
 
         <Button type="submit" className="w-full" size="lg" loading={loading}>

@@ -68,7 +68,7 @@ export function HeroSection() {
             Now in public beta — 2,400+ teams
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-ink leading-[1.05] tracking-tight">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-background leading-[1.05] tracking-tight">
             Manage Projects.<br />
             <span className="text-primary">Collaborate Better.</span>
           </h1>
@@ -78,7 +78,7 @@ export function HeroSection() {
             without the bloat of enterprise tools or the chaos of spreadsheets.
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+          <div className="mt-10 flex flex-col-reverse sm:flex-row gap-4">
             <Link to={ROUTES.REGISTER}>
               <Button size="lg" className="w-full sm:w-auto">
                 Get Started <ArrowRight className="h-5 w-5" />
