@@ -12,7 +12,7 @@ const schema = z.object({
   status: z.string(),
   priority: z.string(),
   startDate: z.string(),
-  endDate: z.string(),
+  endDate: z.string().min(1, 'End date is required'),
   color: z.string(),
 });
 

@@ -39,7 +39,10 @@ export function TestimonialsSection() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card color="white" className="h-full flex flex-col">
+              <Card
+                color={i === 1 ? 'yellow' : 'white'}
+                className={`h-full flex flex-col ${i === 1 ? 'border-transparent shadow-none' : ''}`}
+              >
                 <p className="text-base text-ink leading-relaxed flex-1 font-medium">
                   &ldquo;{t.quote}&rdquo;
                 </p>

@@ -38,8 +38,8 @@ export function TasksPage() {
     if (search) {
       result = result.filter(
         (t) =>
-          t.title.toLowerCase().includes(search.toLowerCase()) ||
-          t.description.toLowerCase().includes(search.toLowerCase())
+          t.title.includes(search) ||
+          t.description.includes(search)
       );
     }
 
