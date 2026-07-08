@@ -29,7 +29,7 @@ export function ResetPasswordPage() {
       return;
     }
 
-    const updated = updatePassword(email, data.password);
+    const updated = await updatePassword(email, data.password);
     if (updated) {
       setSuccess(true);
       setTimeout(() => navigate(ROUTES.LOGIN), 2000);

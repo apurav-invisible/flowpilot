@@ -17,7 +17,7 @@ interface AuthContextValue {
   login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   register: (data: Omit<AuthUser, 'createdAt' | 'avatar'> & { password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  updatePassword: (email: string, newPassword: string) => boolean;
+  updatePassword: (email: string, newPassword: string) => Promise<boolean>;
   getUsers: () => AuthUser[];
 }
 
@@ -43,6 +43,13 @@ function saveSession(session: AuthSession | null) {
   }
 }
 
+async function hashPassword(password: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,8 +67,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string, rememberMe = false) => {
     await new Promise((r) => setTimeout(r, 400));
     const users = getStoredUsers();
+    
+    // Hash the incoming plaintext password to compare it with the stored hash
+    const hashedPassword = await hashPassword(password);
+    
     const found = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === hashedPassword
     );
 
     if (!found) {
@@ -81,10 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false, error: 'An account with this email already exists.' };
     }
 
+    const hashedPassword = await hashPassword(data.password);
+
     const newUser: AuthUser = {
       name: data.name,
       email: data.email,
-      password: data.password,
+      password: hashedPassword,
       avatar: `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${encodeURIComponent(data.name)}`,
       createdAt: new Date().toISOString(),
     };
@@ -100,12 +113,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveSession(null);
   }, []);
 
-  const updatePassword = useCallback((email: string, newPassword: string) => {
+  const updatePassword = useCallback(async (email: string, newPassword: string) => {
     const users = getStoredUsers();
     const index = users.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
     if (index === -1) return false;
 
-    users[index] = { ...users[index], password: newPassword };
+    // Hash the new password before updating it
+    const hashedPassword = await hashPassword(newPassword);
+
+    users[index] = { ...users[index], password: hashedPassword };
     saveUsers(users);
     if (user?.email.toLowerCase() === email.toLowerCase()) {
       setUser(users[index]);

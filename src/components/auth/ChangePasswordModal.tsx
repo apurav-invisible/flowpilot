@@ -45,13 +45,18 @@ export function ChangePasswordModal({
       return;
     }
 
-    if (user.password !== data.currentPassword) {
+    const msgBuffer = new TextEncoder().encode(data.currentPassword);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashedCurrentPassword = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+    if (user.password !== hashedCurrentPassword) {
       setError('Current password is incorrect.');
       setLoading(false);
       return;
     }
 
-    const success = updatePassword(user.email, data.newPassword);
+    const success = await updatePassword(user.email, data.newPassword);
 
     setLoading(false);
 
