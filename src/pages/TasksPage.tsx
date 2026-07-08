@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, CheckSquare, Trash2, Undo2 } from 'lucide-react';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -29,7 +29,6 @@ export function TasksPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const sortedRef = useRef<Task[]>([]);
   const debouncedSearch = useDebounce(search);
 
   const filtered = useMemo(() => {
@@ -47,7 +46,7 @@ export function TasksPage() {
       result = result.filter((t) => {
         const statusMatch = statusFilter === 'all' || t.status === statusFilter;
         const priorityMatch = priorityFilter === 'all' || t.priority === priorityFilter;
-        return statusMatch || priorityMatch;
+        return statusMatch && priorityMatch; {/*  Changed to AND */}
       });
     }
 
@@ -56,8 +55,8 @@ export function TasksPage() {
 
   const sorted = useMemo(() => {
     const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-    const list = sortedRef.current.length > 0 && statusFilter === 'all' ? sortedRef.current : [...filtered];
-    list.sort((a, b) => {
+    
+    return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'title': return a.title.localeCompare(b.title);
         case 'dueDate': return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
@@ -66,9 +65,7 @@ export function TasksPage() {
         default: return 0;
       }
     });
-    sortedRef.current = list;
-    return list;
-  }, [filtered, sortBy, statusFilter]);
+  }, [filtered, sortBy]);
 
   const { currentPage, totalPages, paginatedItems, goToPage } = usePagination(
     sorted,
@@ -77,8 +74,6 @@ export function TasksPage() {
 
   const handlePageChange = (page: number) => {
     goToPage(page);
-    setStatusFilter('all');
-    setPriorityFilter('all');
   };
 
   const handleCreate = async (data: TaskFormData) => {
@@ -224,21 +219,29 @@ export function TasksPage() {
         </div>
       </div>
 
-      {paginatedItems.length === 0 ? (
+      {sorted.length === 0 ? (
         <EmptyState
           icon={<CheckSquare className="h-8 w-8" />}
-          title="No taks found"
+          title="No tasks found"
           description="Try adjusting your filters or create a new task to get started."
           action={<Button onClick={() => setModalOpen(true)}><Plus className="h-4 w-4" /> Create Task</Button>}
         />
       ) : (
         <>
-          <DataTable
-            columns={columns}
-            data={paginatedItems}
-            onRowClick={(task) => { setEditingTask(task); setModalOpen(true); }}
-          />
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+          {paginatedItems.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground bg-slate-50/50 rounded-xl border border-dashed">
+              No tasks found on this page.
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={paginatedItems}
+              onRowClick={(task) => { setEditingTask(task); setModalOpen(true); }}
+            />
+          )}
+          {totalPages > 1 && (
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+          )}
         </>
       )}
 
