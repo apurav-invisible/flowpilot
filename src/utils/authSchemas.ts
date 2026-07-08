@@ -48,8 +48,36 @@ export const changePasswordSchema = z.object({
   path: ['confirmPassword'],
 });
 
+
+export const profileSchema = z.object({
+  id: z.string(),
+
+  name: z.string().trim().min(2, 'Name must be at least 2 characters'),
+
+  email: z.string().trim().email('Enter a valid email address'),
+
+  phone: z.string().trim()
+  .regex(/^\d+$/, 'Phone must contain only numbers')
+  .min(10, 'Phone must be at least 10 digits')
+  .max(12, 'Phone must be at most 12 digits')
+  .optional().or(z.literal('')),
+
+  location: z.string().trim(),
+  bio: z.string().trim().max(200, 'Bio must be at most 200 characters'),
+
+  website: z.string().trim().refine(
+    (value) => value === '' || z.string().url().safeParse(value).success, {
+    message: 'Enter a valid URL (e.g., https://example.com)',
+  }),
+  
+  skills: z.array(z.string().trim()),
+  avatar: z.string().trim(),
+});
+
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+export type ProfileFormData = z.infer<typeof profileSchema>;

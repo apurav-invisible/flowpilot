@@ -28,6 +28,7 @@ import { fetchNotifications } from '@/services/notificationService';
 import { fetchFiles } from '@/services/fileService';
 import { fetchActivity } from '@/services/activityService';
 import { useToast } from './ToastContext';
+import { useAuth } from './AuthContext';
 
 interface AppContextValue {
   loading: boolean;
@@ -76,6 +77,7 @@ const defaultProfile: UserProfile = {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const { addToast } = useToast();
+  const { user: authUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -84,9 +86,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
-  const [profile, setProfile] = useState<UserProfile>(() =>
-    getFromStorage(STORAGE_KEYS.PROFILE, defaultProfile)
-  );
+  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [settings, setSettings] = useState<AppSettings>(() =>
     getFromStorage(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS)
   );
@@ -129,6 +129,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (authUser) {
+      const found = users.find((u) => u.email.toLowerCase() === authUser.email.toLowerCase());
+      if (found) {
+        setCurrentUser(found);
+      } else {
+        setCurrentUser({
+          id: authUser.email,
+          name: authUser.name,
+          email: authUser.email,
+          role: 'member',
+          avatar: authUser.avatar,
+          department: 'General',
+          phone: '',
+          bio: '',
+          skills: [],
+          joinedAt: authUser.createdAt || new Date().toISOString(),
+          projectIds: [],
+        });
+      }
+
+      // Load user-specific profile
+      const userProfileKey = `${STORAGE_KEYS.PROFILE}_${authUser.email.toLowerCase()}`;
+      const initialProfile: UserProfile = {
+        id: found?.id || authUser.email,
+        name: found?.name || authUser.name,
+        email: found?.email || authUser.email,
+        phone: found?.phone || '',
+        bio: found?.bio || '',
+        location: '',
+        website: '',
+        skills: found?.skills || [],
+        avatar: found?.avatar || authUser.avatar,
+      };
+      setProfile(getFromStorage<UserProfile>(userProfileKey, initialProfile));
+    } else {
+      setCurrentUser(null);
+      setProfile(defaultProfile);
+    }
+  }, [authUser, users, loading]);
 
   useEffect(() => {
     if (!loading && projects.length > 0) {
@@ -288,6 +331,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = (updated: UserProfile) => {
     setProfile(updated);
+    if (authUser) {
+      const userProfileKey = `${STORAGE_KEYS.PROFILE}_${authUser.email.toLowerCase()}`;
+      setToStorage(userProfileKey, updated);
+
+      const updatedFields = {
+        name: updated.name,
+        phone: updated.phone,
+        bio: updated.bio,
+        skills: updated.skills,
+        avatar: updated.avatar,
+      };
+
+      // Sync the user list in state
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.email.toLowerCase() === authUser.email.toLowerCase()
+            ? { ...u, ...updatedFields }
+            : u
+        )
+      );
+
+      // Also update the currentUser state directly
+      setCurrentUser((prev) => (prev ? { ...prev, ...updatedFields } : null));
+    }
     addToast('success', 'Profile updated');
   };
 
