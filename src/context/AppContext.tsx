@@ -297,9 +297,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDeletedStack((prev) => prev.slice(1));
 
     if (toRestore.type === 'task') {
-      setProjects((prev) => [...prev, toRestore.item as unknown as Project]);
+      setTasks((prev) => [...prev, toRestore.item as Task]);
     } else {
-      setTasks((prev) => [...prev, toRestore.item as unknown as Task]);
+      setProjects((prev) => [...prev, toRestore.item as Project]);
     }
     addToast('info', 'Item restored');
   };
